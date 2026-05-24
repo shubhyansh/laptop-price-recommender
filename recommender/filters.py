@@ -21,10 +21,9 @@ The fixed expressions in :func:`filter_by_graphics` and
 
 from __future__ import annotations
 
-from typing import Iterable, Mapping
+from collections.abc import Iterable, Mapping
 
 import pandas as pd
-
 
 # ---------------------------------------------------------------------------
 # Per-axis filters
@@ -58,9 +57,7 @@ def filter_by_brand(df: pd.DataFrame, selected: Iterable[str]) -> pd.DataFrame:
     return df[df["brand"].isin(selected)]
 
 
-def filter_by_processor_performance(
-    df: pd.DataFrame, selected: Iterable[str]
-) -> pd.DataFrame:
+def filter_by_processor_performance(df: pd.DataFrame, selected: Iterable[str]) -> pd.DataFrame:
     """Map the human-readable processor tier strings onto the dataset's
     boolean columns ``Medium`` (i5 / Ryzen 5) and ``Advanced`` (i7-i9 / Ryzen 7-9).
 
