@@ -3,9 +3,12 @@ import streamlit as st
 import requests
 from bs4 import BeautifulSoup
 
+from recommender import apply_filters
 
 
 laptops = pd.read_csv("cleaned_laptops_updated.csv")
+
+
 def get_image_and_price(link):
     response = requests.get(link)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -13,99 +16,6 @@ def get_image_and_price(link):
     image_src = element.find("img", class_="_396cs4").get("src")
     price = element.find("div", class_="_30jeq3").text
     return (image_src, price)
-
-
-def filterLaptops(specification, laptops):
-    filterLaptops = laptops.copy()
-    
-    # intended use
-    if len(specification["Intended Use"]) > 0:
-        allOptions = ["Studying", "Programming", "Gaming", "Multimedia"]
-        copy = filterLaptops.copy()
-        for option in allOptions:
-            if option in specification["Intended Use"]:
-                copy = copy[copy[option] == False]
-        filterLaptops = filterLaptops[filterLaptops["id"].isin(copy["id"]) == False]
-    
-    if len(specification["Preferred Brands or Models"]) > 0:
-        filterLaptops = filterLaptops[filterLaptops['brand'].isin(specification["Preferred Brands or Models"])]
-        
-    if len(specification["Processor Performance"]) > 0:
-        requirements = {"Moderate multitasking (Intel Core i5 or equivalent AMD Ryzen 5)" : "Medium", "Intensive tasks (Intel Core i7/i9 or equivalent AMD Ryzen 7/9)" : "Advanced"}
-        copy = filterLaptops.copy()
-        for key, value in requirements.items():
-            if key in specification["Processor Performance"]:
-                copy = copy[copy[value] == False]
-        filterLaptops = filterLaptops[filterLaptops["id"].isin(copy["id"]) == False]
-        
-    if len(specification["Budget Range"]) > 0:
-        if "Under 40k" not in specification["Budget Range"]:
-            filterLaptops = filterLaptops[filterLaptops["latest_price"] >= 40000]
-        if "40k - 55k" not in specification["Budget Range"]:
-            filterLaptops = filterLaptops[(filterLaptops["latest_price"] < 40000) | (filterLaptops["latest_price"] >= 55000)]
-        if "55k - 70k" not in specification["Budget Range"]:
-            filterLaptops = filterLaptops[(filterLaptops["latest_price"] < 55000) | (filterLaptops["latest_price"] >= 70000)]
-        if "70k - 85k" not in specification["Budget Range"]:
-            filterLaptops = filterLaptops[(filterLaptops["latest_price"] < 70000) | (filterLaptops["latest_price"] >= 85000)]
-        if "85k above" not in specification["Budget Range"]:
-            filterLaptops = filterLaptops[filterLaptops["latest_price"] < 85000]
-    
-    if len(specification["Operating System Preference"]) > 0:
-        filterLaptops = filterLaptops[filterLaptops["os"].isin(specification["Operating System Preference"])]
-    
-    if len(specification["RAM Requirement"]) > 0:
-        if "4GB - 8GB" not in specification["RAM Requirement"]:
-            filterLaptops = filterLaptops[(filterLaptops["ram_gb"] < 4) | (filterLaptops["ram_gb"] > 8)]
-        if "8GB - 16GB" not in specification["RAM Requirement"]:
-            filterLaptops = filterLaptops[(filterLaptops["ram_gb"] < 8) | (filterLaptops["ram_gb"] > 16)]
-        if "16GB+" not in specification["RAM Requirement"]:
-            filterLaptops = filterLaptops[(filterLaptops["ram_gb"] < 16)]
-    
-    if len(specification["Desired Storage Space"]) > 0:
-        if "0 GB - 128GB" not in specification["Desired Storage Space"]:
-            filterLaptops = filterLaptops[(filterLaptops["ssd"] + filterLaptops["hdd"] > 128)]
-        if "128GB - 256GB" not in specification["Desired Storage Space"]:
-            filterLaptops = filterLaptops[(filterLaptops["ssd"] + filterLaptops["hdd"] < 128) | (filterLaptops["ssd"] + filterLaptops["hdd"] > 256)]
-        if "256GB - 512GB" not in specification["Desired Storage Space"]:
-            filterLaptops = filterLaptops[(filterLaptops["ssd"] + filterLaptops["hdd"] < 256) | (filterLaptops["ssd"] + filterLaptops["hdd"] > 512)]
-        if "512GB - 1TB" not in specification["Desired Storage Space"]:
-            filterLaptops = filterLaptops[(filterLaptops["ssd"] + filterLaptops["hdd"] < 512) | (filterLaptops["ssd"] + filterLaptops["hdd"] > 1024)]
-        if "1TB+" not in specification["Desired Storage Space"]:
-            filterLaptops = filterLaptops[filterLaptops["ssd"] + filterLaptops["hdd"] < 1024]
-
-    if len(specification["Preferred Screen Size"]) > 0:
-        if "11 - 13 inches" not in specification["Preferred Screen Size"]:
-            filterLaptops = filterLaptops[(filterLaptops["display_size"] < 11) | (filterLaptops["display_size"] > 13)]
-        if "13 - 14 inches" not in specification["Preferred Screen Size"]:
-            filterLaptops = filterLaptops[(filterLaptops["display_size"] < 13) | (filterLaptops["display_size"] > 14)]
-        if "14 - 15 inches" not in specification["Preferred Screen Size"]:
-            filterLaptops = filterLaptops[(filterLaptops["display_size"] < 14) | (filterLaptops["display_size"] > 15)]
-        if "15+ inches" not in specification["Preferred Screen Size"]:
-            filterLaptops = filterLaptops[filterLaptops["display_size"] < 15]
-    
-    if len(specification["Graphics-Intensive Tasks"]) > 0:
-        if "Heavy gaming or professional video editing/rendering" in specification["Graphics-Intensive Tasks"]:
-            filterLaptops = filterLaptops[filterLaptops["Gaming"] == True]
-        elif "Moderate gaming and video editing" in specification["Graphics-Intensive Tasks"]:
-            filterLaptops = filterLaptops[filterLaptops["Gaming"] == True | filterLaptops["Programming"] == True]
-
-    if len(specification["Portability Importance"]) > 0:
-        if "Moderate (Balanced weight and performance)" in specification["Portability Importance"]:
-            filterLaptops = filterLaptops[filterLaptops["weight"] == "Casual" | filterLaptops["weight"] == "ThinNlight" ]
-        elif "Very important (Looking for lightweight options)" in specification["Portability Importance"]:
-            filterLaptops = filterLaptops[filterLaptops["weight"] == "ThinNlight"]
-        
-    if len(specification["Touchscreen Preference"]) > 0:
-        if "Yes, I prefer a touchscreen" in specification["Touchscreen Preference"]:
-            filterLaptops = filterLaptops[filterLaptops["Touchscreen"] == True]
-        elif "No, I don't need a touchscreen" in specification["Touchscreen Preference"]:
-            filterLaptops = filterLaptops[filterLaptops["Touchscreen"] == False]
-    
-    if len(specification["Warranty and Support"]) > 0:
-        if "Longer warranty and premium support services" in specification["Warranty and Support"]:
-            filterLaptops = filterLaptops[filterLaptops["warranty"] >= 1]
-        
-    return filterLaptops
 
 
 def main():
@@ -121,9 +31,9 @@ def main():
     st.title("Laptop Finder")
     st.sidebar.title("Laptop Specifications")
     intended_use = st.sidebar.multiselect("1. Intended Use", ["Studying", "Programming", "Gaming", "Multimedia"])
-    
+
     preferred_brands = st.sidebar.multiselect("2. Preferred Brands or Models", laptops["brand"].unique())
-    
+
     processor_performance = st.sidebar.multiselect("3. Processor Performance", ["Basic tasks (Intel Core i3 or equivalent AMD)", "Moderate multitasking (Intel Core i5 or equivalent AMD Ryzen 5)", "Intensive tasks (Intel Core i7/i9 or equivalent AMD Ryzen 7/9)"])
     budget_range = st.sidebar.multiselect("4. Budget Range", ["Under 40k", "40k - 55k", "55k - 70k", "70k - 85k", "85k above"])
     os_preference = st.sidebar.multiselect("5. Operating System Preference", laptops["os"].unique())
@@ -173,7 +83,7 @@ def main():
         with col8:
             results = st.selectbox("Number of Results", [5, 10, 15, 20, 25, 30, 35, 40, 45, 50], index=2)
     if search:
-        filtered_laptops = filterLaptops(specification, laptops).sort_values(by=["star_rating", "ratings", "reviews"], ascending=False).head(results)
+        filtered_laptops = apply_filters(laptops, specification).sort_values(by=["star_rating", "ratings", "reviews"], ascending=False).head(results)
         if len(filtered_laptops) == 0:
             filtered_laptops = laptops.sort_values(by=["star_rating", "ratings", "reviews"], ascending=False).head(results)
     else:
@@ -200,15 +110,13 @@ def main():
             except:
                 # Display a default image OIG.jpeg
                 st.image("OIG.jpeg", use_column_width=True)
-            
+
             if laptop['latest_price'] == 0:
                 st.warning("Price not available")
             elif laptop['latest_price'] < laptop['old_price'] and laptop['old_price'] != 0:
-                # st.write(f" #### Latest Price: ₹{laptop['latest_price']:,}  (~~₹{laptop['old_price']:,}~~)")
                 st.write(f" #### Latest Price:")
                 st.write(f" ##### ₹{laptop['latest_price']:,}  (~~₹{laptop['old_price']:,}~~)")
                 st.success(f"Discount: ₹{laptop['old_price'] - laptop['latest_price']:,} ({round((laptop['old_price'] - laptop['latest_price']) / laptop['old_price'] * 100, 2)}%)")
-            # if latest price is more than old_price, show a st.error header with the difference and discount percentage
             elif laptop['latest_price'] > laptop['old_price'] and laptop['old_price'] != 0:
                 st.write(f" #### Latest Price:")
                 st.write(f" ##### ₹{laptop['latest_price']:,}  (~~₹{laptop['old_price']:,}~~)")
@@ -216,14 +124,11 @@ def main():
             else:
                 st.write(f" #### Latest Price:")
                 st.write(f" ##### ₹{laptop['latest_price']:,}  (~~₹{laptop['old_price']:,}~~)")
-            
+
             st.subheader(f"Rating: {laptop['star_rating']}")
-            # Number of ratings and reviews
             st.write(f"({laptop['ratings']} ratings, {laptop['reviews']} reviews)")
         with col2:
-            # Display the laptop brand and model as a subheader
             st.header(laptop["brand"] + " " + laptop["model"])
-            # Display the specifications as a bulleted list            
             st.success("**Specifications:**")
             col3, col4 = st.columns([0.5, 0.5])
             with col3:
@@ -240,7 +145,6 @@ def main():
                 st.write(f"- Touchscreen: {'Yes' if laptop['Touchscreen'] else 'No'}")
                 st.write(f"- Microsoft Office: {'Yes' if laptop['msoffice'] else 'No'}")
 
-            # Display the Flipkart link as a hyperlink
             if laptop['link'] != "Not Found":
                 st.write(f"- Flipkart Link: [Click here]({laptop['link']})")
             col9, col10 = st.columns([0.5, 0.5])

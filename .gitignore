@@ -32,3 +32,6 @@ Thumbs.db
 /cache/
 /tmp/
 *.local.csv
+
+# Custodian dispatch logs
+dispatch-*.log
