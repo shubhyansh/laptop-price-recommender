@@ -1,0 +1,76 @@
+# Project metadata + tool configuration.
+# Kept deliberately minimal - this repo is a Streamlit app, not a published
+# package. The [tool.*] sections drive pytest, ruff, and coverage; no
+# [project] section because the app is not pip-installable.
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = [
+    "-ra",
+    "--strict-config",
+    "--strict-markers",
+    "--showlocals",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning:pkg_resources.*",
+    "ignore::DeprecationWarning:pandas.*",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["recommender"]
+omit = [
+    "tests/*",
+    "app.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+show_missing = true
+precision = 1
+skip_empty = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = [
+    ".venv",
+    "build",
+    "dist",
+    "*.ipynb",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # pyflakes
+    "I",     # isort
+    "B",     # flake8-bugbear
+    "UP",    # pyupgrade
+    "C4",    # flake8-comprehensions
+    "SIM",   # flake8-simplify
+]
+ignore = [
+    "E712",  # pandas idiom: use == True for vector boolean comparison
+    "E501",  # line length handled by formatter, not lint
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E712", "B011"]
+"app.py" = ["E712"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true

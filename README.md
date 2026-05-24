@@ -6,6 +6,10 @@
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![pandas](https://img.shields.io/badge/pandas-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![ci](https://github.com/shubhyansh/laptop-price-recommender/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/shubhyansh/laptop-price-recommender/actions/workflows/ci.yml)
+[![codeql](https://github.com/shubhyansh/laptop-price-recommender/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/shubhyansh/laptop-price-recommender/actions/workflows/codeql.yml)
+[![ruff](https://img.shields.io/badge/lint-ruff-D7FF64?logo=ruff&logoColor=black)](https://docs.astral.sh/ruff/)
+[![pytest](https://img.shields.io/badge/tested%20with-pytest-0A9EDC?logo=pytest&logoColor=white)](https://docs.pytest.org/)
 
 ---
 
@@ -43,6 +47,14 @@ streamlit run app.py
 ```
 
 The app reads `cleaned_laptops_updated.csv` from the repo root and binds to `localhost:8501`.
+## Running the tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest --cov=recommender
+```
+
+The suite has 52 tests covering each filter axis plus a snapshot test that pins the dispatcher output against the catalogue CSV. CI runs the suite across Python 3.10 / 3.11 / 3.12 on every push and pull request to `main`.
 
 ## Data
 
