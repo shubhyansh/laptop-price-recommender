@@ -1,0 +1,64 @@
+#!/bin/sh
+#
+# commit-msg hook — enforces Conventional Commits on this repository.
+#
+# Enable once per clone:
+#     git config core.hooksPath .githooks
+#
+# Accepts subjects of the form:
+#     <type>[optional (scope)][optional !]: <description>
+# where <type> is one of:
+#     feat fix docs refactor test chore ci perf build style revert
+#
+# Rejects lazy subjects (update, wip, stuff, fixup, misc, …) and anything
+# that does not match the pattern. Merge commits and revert-generated
+# commits are allowed through unchanged.
+
+msg_file="$1"
+
+# First line that is not blank and not a comment — the commit subject.
+subject=$(grep -v '^#' "$msg_file" | sed '/^[[:space:]]*$/d' | head -n 1)
+
+# Allow merge commits ("Merge branch …", "Merge pull request …").
+case "$subject" in
+	"Merge "*) exit 0 ;;
+esac
+
+# Allow git-generated revert commits.
+case "$subject" in
+	"Revert \""*) exit 0 ;;
+esac
+
+# Reject obviously lazy subjects early, with a clearer message.
+lowered=$(printf '%s' "$subject" | tr '[:upper:]' '[:lower:]')
+case "$lowered" in
+	update|updates|wip|stuff|misc|fix|fixes|changes|tmp|temp|asdf|test)
+		echo "commit-msg: rejected — \"$subject\" is not a descriptive subject." >&2
+		echo "Use a Conventional Commit, e.g.  feat: add storage filter axis" >&2
+		exit 1
+		;;
+esac
+
+# Conventional Commits pattern. POSIX ERE — no shorthand classes.
+pattern='^(feat|fix|docs|refactor|test|chore|ci|perf|build|style|revert)(\([a-zA-Z0-9 ._/-]+\))?!?: .+'
+
+if printf '%s' "$subject" | grep -Eq "$pattern"; then
+	# Guard against an empty description after the colon.
+	desc=$(printf '%s' "$subject" | sed -E 's/^[a-z]+(\([^)]*\))?!?:[[:space:]]*//')
+	if [ -z "$desc" ]; then
+		echo "commit-msg: rejected — subject has a type but no description." >&2
+		exit 1
+	fi
+	exit 0
+fi
+
+echo "commit-msg: rejected — subject does not follow Conventional Commits." >&2
+echo "" >&2
+echo "  Got:      $subject" >&2
+echo "  Expected: <type>[(scope)]: <description>" >&2
+echo "  Types:    feat fix docs refactor test chore ci perf build style revert" >&2
+echo "" >&2
+echo "  Examples: feat: add display-panel filter axis" >&2
+echo "            fix(filters): correct OR precedence on the graphics axis" >&2
+echo "            docs: document the catalogue refresh procedure" >&2
+exit 1
