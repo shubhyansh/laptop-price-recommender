@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/shubhyansh/laptop-price-recommender/blob/main/SECURITY.md
+    about: Please report security issues privately by email. Do not open a public issue. See SECURITY.md.
+  - name: Question or discussion
+    url: https://github.com/shubhyansh/laptop-price-recommender/discussions
+    about: For "how do I…" questions and open-ended discussion.

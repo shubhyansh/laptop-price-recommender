@@ -1,0 +1,91 @@
+name: Bug report
+description: Something is misbehaving in the app.
+title: "[bug] "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug. A short, exact repro is the single most useful
+        thing you can provide.
+
+  - type: dropdown
+    id: how_run
+    attributes:
+      label: How are you running the app?
+      options:
+        - Live Streamlit Community Cloud demo
+        - Locally via streamlit run app.py
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: streamlit_version
+    attributes:
+      label: Streamlit version
+      description: "Run `streamlit version`. Skip if you are on the hosted demo."
+      placeholder: "e.g. 1.36.0"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS
+        - Linux
+        - Hosted demo (not applicable)
+    validations:
+      required: true
+
+  - type: textarea
+    id: what_happened
+    attributes:
+      label: What happened?
+      description: A clear, calm description of what went wrong.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      description: One sentence is enough.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps, starting from a fresh launch.
+      placeholder: |
+        1. Launch the app
+        2. In the sidebar, set Budget Range to "55k - 70k"
+        3. Click Search
+        4. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / errors
+      description: |
+        Anything from the Streamlit terminal or the browser DevTools console.
+        Redact anything you would not want public before pasting.
+      render: shell
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: I searched existing issues and didn't find a duplicate.
+          required: true
+        - label: I understand the catalogue is a January 2024 snapshot and stale prices are expected.
+          required: true
